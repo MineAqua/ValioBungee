@@ -133,14 +133,16 @@ public abstract class PlayerDataManager<P, LE, DE, PS extends IPubSubMessageEven
     }
 
     protected void playerChangedServer(UUID uuid, String from, String to) {
-        JSONObject data = new JSONObject();
-        data.put("proxy", this.proxyId);
-        data.put("uuid", uuid);
-        data.put("from", from);
-        data.put("to", to);
-        plugin.proxyDataManager().sendChannelMessage("redisbungee-serverchange", data.toString());
-        plugin.fireEvent(plugin.createPlayerChangedServerNetworkEvent(uuid, from, to));
-        handleServerChangeRedis(uuid, to);
+        plugin.executeAsync(() -> {
+            JSONObject data = new JSONObject();
+            data.put("proxy", this.proxyId);
+            data.put("uuid", uuid);
+            data.put("from", from);
+            data.put("to", to);
+            plugin.proxyDataManager().sendChannelMessage("redisbungee-serverchange", data.toString());
+            plugin.fireEvent(plugin.createPlayerChangedServerNetworkEvent(uuid, from, to));
+            handleServerChangeRedis(uuid, to);
+        });
     }
 
     public void kickPlayer(UUID uuid, Component message) {
